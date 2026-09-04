@@ -1,11 +1,17 @@
 package com.senac.tsi.MinhaPrimeiraApi;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class EmployeeController {
@@ -17,8 +23,18 @@ public class EmployeeController {
     }
 
     @GetMapping("/employee")
-    public List<Employee> GetAll(){
-        return repository.findAll();
+    public CollectionModel<EntityModel<Employee>> GetAll(){
+        var employees = repository.findAll()
+                .stream().map(employee -> EntityModel.of(employee,
+                        linkTo(methodOn(EmployeeController.class)
+                                .getEmployeeById(employee.getId()))
+                                .withSelfRel(),
+                        linkTo(methodOn(EmployeeController.class)
+                                .GetAll()).withRel("employees")))
+                .toList();
+
+        return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class)
+                .GetAll()).withSelfRel());
     }
 
     @PostMapping("/employee")
@@ -27,12 +43,19 @@ public class EmployeeController {
     }
 
     @GetMapping("/employee/{id}")
-    public Employee getEmployeeById (
+    public EntityModel<Employee> getEmployeeById (
             @PathVariable long id){
-        return repository
+        var employee =  repository
                 .findById(id)
                 .orElseThrow(() ->
                         new EmployeeNotFoundException(id));
+
+        return EntityModel.of(employee,
+                linkTo(methodOn(EmployeeController.class)
+                        .getEmployeeById(id)).withSelfRel(),
+                linkTo(methodOn(EmployeeController.class)
+                        .GetAll()).withRel("employees")
+        );
     }
 
     @PutMapping("/employee/{id}")
