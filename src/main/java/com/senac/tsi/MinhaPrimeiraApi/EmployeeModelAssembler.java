@@ -1,12 +1,12 @@
-package senac.tsi.minhaprimeiraapi;
+package com.senac.tsi.MinhaPrimeiraApi;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
 
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.RepresentationModelAssembler;
 import org.springframework.stereotype.Component;
-import senac.tsi.minhaprimeiraapi.Employee;
-import senac.tsi.minhaprimeiraapi.EmployeeController;
+import com.senac.tsi.MinhaPrimeiraApi.Employee;
+import com.senac.tsi.MinhaPrimeiraApi.EmployeeController;
 
 @Component
 class EmployeeModelAssembler implements RepresentationModelAssembler<Employee, EntityModel<Employee>> {

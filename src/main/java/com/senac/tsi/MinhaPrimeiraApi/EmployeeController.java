@@ -1,4 +1,4 @@
-package senac.tsi.minhaprimeiraapi;
+package com.senac.tsi.MinhaPrimeiraApi;
 
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
