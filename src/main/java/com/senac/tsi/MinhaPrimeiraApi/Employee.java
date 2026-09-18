@@ -3,6 +3,8 @@ package com.senac.tsi.MinhaPrimeiraApi;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 import java.util.Objects;
 
@@ -10,8 +12,15 @@ import java.util.Objects;
 public class Employee {
     private @Id
     @GeneratedValue long id;
+
+    @NotBlank
+    @Size(min = 3, max = 100)
     private String firstName;
+
+    @Size(min = 3, max = 100)
     private String lastName;
+
+    @Size(min = 3, max = 100)
     private String role;
 
     public Employee() {

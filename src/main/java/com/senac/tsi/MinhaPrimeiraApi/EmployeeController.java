@@ -1,5 +1,13 @@
 package com.senac.tsi.MinhaPrimeiraApi;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
@@ -15,6 +23,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
+@Tag(name="tag_at_class_level", description = "Employees Management")
 public class EmployeeController {
 
     private final EmployeeRepository repository;
@@ -26,6 +35,8 @@ public class EmployeeController {
         this.assembler = assembler;
     }
 
+    @Operation(summary = "Get all employees")
+    @ApiResponse(responseCode = "200", description = "Returned a list with all employees visible")
     @GetMapping("/employees")
     CollectionModel<EntityModel<Employee>> getAllEmployees() {
 
@@ -37,8 +48,24 @@ public class EmployeeController {
     }
 
 
+    @Tag(name = "tag_at_method_level")
+    @Tag(name = "create" , description = "create a new employee")
+    @Operation(summary = "Creates a new employee")
+    @ApiResponse(responseCode = "201", description = "Returns a new employee created")
+    @ApiResponse(responseCode = "400", description = "Bad request on the payload")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true)
     @PostMapping("/employees")
-    public ResponseEntity<?> newEmployee(@RequestBody Employee newEmployee){
+    public ResponseEntity<?> newEmployee(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "New employee",
+                    required = true,
+                    content = @Content(mediaType = "application/json",
+                            schema= @Schema(implementation = Employee.class),
+                            examples = @ExampleObject(value = "{ \"firstName\": \"Bilbo\", \"lastName\": \"Baggins\", \"role\": \"Burglar\" }")
+                    )
+
+            )
+            @RequestBody @Valid Employee newEmployee){
 
         EntityModel<Employee> entityModel =
                 assembler.toModel(repository.save(newEmployee));
@@ -48,6 +75,12 @@ public class EmployeeController {
                 .toUri()).body(newEmployee);
     }
 
+    @Operation(summary = "Get a employee by your id")
+    @ApiResponse(responseCode = "200", description = "Returns a valid employee"
+    , content = {@Content(mediaType = "application/json",
+            schema = @Schema(implementation = Employee.class))})
+    @ApiResponse(responseCode = "404", description = "Not find it a employee with the id", content = @Content)
+    @ApiResponse(responseCode = "400", description = "Tried to search a employee with invalid id", content = @Content)
     @GetMapping("/employees/{id}")
     EntityModel<Employee> getEmployeeById(@PathVariable Long id) {
 
@@ -70,9 +103,16 @@ public class EmployeeController {
                 });
     }
 
+    @Operation(summary = "Deletes a employee")
+    @ApiResponse(responseCode = "204", description = "Successfully deleted a employee", content = {@Content})
+    @ApiResponse(responseCode = "404", description = "Not found a employee, maybe it's already deleted", content = {@Content})
     @DeleteMapping("/employee/{id}")
-    public ResponseEntity<?> deleteEmployee(@PathVariable Long id)
+    public ResponseEntity<?> deleteEmployee(@Parameter(description = "Id of employee") @PathVariable Long id)
     {
+        var employee = repository.findById(id);
+        if(employee.isEmpty())
+            return ResponseEntity.notFound().build();
+
         repository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
