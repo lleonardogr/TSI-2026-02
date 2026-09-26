@@ -36,15 +36,17 @@ public class EmployeeController {
     }
 
     @Operation(summary = "Get all employees")
-    @ApiResponse(responseCode = "200", description = "Returned a list with all employees visible")
+    @ApiResponse(responseCode = "200", description = "Returned a paginated list of all visible employees")
     @GetMapping("/employees")
-    CollectionModel<EntityModel<Employee>> getAllEmployees() {
+    public PagedModel<EntityModel<Employee>> getAllEmployees(
+            @ParameterObject Pageable pageable,
+            PagedResourcesAssembler<Employee> pagedAssembler) {
 
-        List<EntityModel<Employee>> employees = repository.findAll().stream() //
-                .map(assembler::toModel) //
-                .collect(Collectors.toList());
+        // 1. Busca os dados paginados do banco de dados
+        Page<Employee> employeePage = repository.findAll(pageable);
 
-        return CollectionModel.of(employees, linkTo(methodOn(EmployeeController.class).getAllEmployees()).withSelfRel());
+        // 2. Converte a Page comum em um PagedModel do HATEOAS usando o assembler e o seu assembler de entidade
+        return pagedAssembler.toModel(employeePage, assembler);
     }
 
 
