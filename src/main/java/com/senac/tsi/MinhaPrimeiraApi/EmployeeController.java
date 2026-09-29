@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -47,7 +48,8 @@ public class EmployeeController {
     @Operation(summary = "Get all employees")
     @ApiResponse(responseCode = "200", description = "Returned a paginated list of all visible employees")
     @GetMapping("/employees")
-    public ResponseEntity<PagedModel<EntityModel<Employee>>> getAllEmployees(Pageable pageable) {
+    public ResponseEntity<PagedModel<EntityModel<Employee>>> getAllEmployees(
+            @ParameterObject @PageableDefault(size = 10, page = 0, sort = "id") Pageable pageable) {
         // 1. Busca os dados paginados do banco
         Page<Employee> employeePage = repository.findAll(pageable);
 
