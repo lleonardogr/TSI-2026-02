@@ -32,26 +32,30 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class EmployeeController {
 
     private final EmployeeRepository repository;
-
     private final EmployeeModelAssembler assembler;
+    private final PagedResourcesAssembler<Employee> pagedResourcesAssembler;
 
-    EmployeeController(EmployeeRepository repository, EmployeeModelAssembler assembler) {
+    // Injete os três componentes no construtor
+    public EmployeeController(EmployeeRepository repository,
+                              EmployeeModelAssembler assembler,
+                              PagedResourcesAssembler<Employee> pagedResourcesAssembler) {
         this.repository = repository;
         this.assembler = assembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Operation(summary = "Get all employees")
     @ApiResponse(responseCode = "200", description = "Returned a paginated list of all visible employees")
     @GetMapping("/employees")
-    public PagedModel<EntityModel<Employee>> getAllEmployees(
-            @ParameterObject Pageable pageable,
-            PagedResourcesAssembler<Employee> pagedAssembler) {
-
-        // 1. Busca os dados paginados do banco de dados
+    public ResponseEntity<PagedModel<EntityModel<Employee>>> getAllEmployees(Pageable pageable) {
+        // 1. Busca os dados paginados do banco
         Page<Employee> employeePage = repository.findAll(pageable);
 
-        // 2. Converte a Page comum em um PagedModel do HATEOAS usando o assembler e o seu assembler de entidade
-        return pagedAssembler.toModel(employeePage, assembler);
+        // 2. Transforma a Page em PagedModel usando o seu assembler customizado
+        PagedModel<EntityModel<Employee>> pagedModel =
+                pagedResourcesAssembler.toModel(employeePage, assembler);
+
+        return ResponseEntity.ok(pagedModel);
     }
 
 
