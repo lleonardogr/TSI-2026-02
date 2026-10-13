@@ -1,0 +1,26 @@
+# Build artifacts
+target/
+build/
+out/
+*.jar
+*.war
+
+# IDE settings
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+
+# Version control
+.git/
+.gitignore
+
+# Environment and sensitive data
+.env
+*.log
+
+# Build tools
+.gradle/
+gradlew
+gradlew.bat
