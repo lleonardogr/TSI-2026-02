@@ -4,16 +4,13 @@ WORKDIR /app
 
 # Copy build descriptors first for better cache
 COPY pom.xml .
-COPY .mvn .mvn
-COPY mvnw .
-RUN chmod +x ./mvnw
 
 # Download deps (optional but speeds up rebuilds)
-RUN ./mvnw -q -DskipTests dependency:go-offline
+RUN mvn -q -DskipTests dependency:go-offline
 
 # Copy source and build
 COPY src src
-RUN ./mvnw -DskipTests clean package
+RUN mvn -DskipTests clean package
 
 
 # ---------- Runtime stage ----------
