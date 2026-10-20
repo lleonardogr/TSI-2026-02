@@ -14,10 +14,9 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // Applies CORS to all endpoints
-                        .allowedOrigins("http://localhost:3000", "127.0.0.1:*") // Allowed domains
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allowed HTTP methods
-                        .allowedHeaders("*") // Allowed request headers
-                        .allowCredentials(true) // Allows cookies/auth headers if needed
+                        .allowedOrigins("*") // Public API: any site can call it
+                        .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS") // Allowed HTTP methods
+                        .allowedHeaders("*") // Allowed request headers (incl. Authorization)
                         .maxAge(3600); // Cache preflight response for 1 hour
             }
         };
