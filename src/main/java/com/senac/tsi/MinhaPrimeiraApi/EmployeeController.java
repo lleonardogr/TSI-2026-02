@@ -2,6 +2,7 @@ package com.senac.tsi.MinhaPrimeiraApi;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -66,6 +67,11 @@ public class EmployeeController {
     @Operation(summary = "Creates a new employee")
     @ApiResponse(responseCode = "201", description = "Returns a new employee created")
     @ApiResponse(responseCode = "400", description = "Bad request on the payload")
+    @ApiResponse(responseCode = "409", description = "A request with the same Idempotency-Key is still being processed", content = @Content)
+    @ApiResponse(responseCode = "422", description = "Idempotency-Key was already used with a different payload", content = @Content)
+    @Parameter(in = ParameterIn.HEADER, name = IdempotencyFilter.HEADER, required = false,
+            description = "Unique key (e.g. a UUID) that makes retries safe: repeating it returns the original response instead of creating a new employee",
+            schema = @Schema(type = "string", example = "3f2b8c1e-9d4a-4c7e-b1a2-6e5f0d9c8a71"))
     @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true)
     @PostMapping("/employees")
     public ResponseEntity<?> newEmployee(
