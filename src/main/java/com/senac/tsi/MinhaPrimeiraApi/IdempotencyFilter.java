@@ -58,7 +58,8 @@ public class IdempotencyFilter extends OncePerRequestFilter {
             writeError(response, 400, "Idempotency-Key must have between 1 and " + MAX_KEY_LENGTH + " characters");
             return;
         }
-        String storeKey = request.getRequestURI() + "|" + key;
+        // The same key sent to another API version is a different request (different payload and response)
+        String storeKey = request.getRequestURI() + "|" + apiVersion(request) + "|" + key;
 
         Entry existing = entries.get(storeKey);
         if (existing != null && existing.expired()) {
@@ -126,6 +127,14 @@ public class IdempotencyFilter extends OncePerRequestFilter {
         }
         response.setHeader("Idempotent-Replayed", "true");
         response.getOutputStream().write(stored.body());
+    }
+
+    private static String apiVersion(HttpServletRequest request) {
+        String version = request.getHeader(ApiVersionConfig.HEADER);
+        if (version == null) {
+            version = request.getParameter(ApiVersionConfig.QUERY_PARAM);
+        }
+        return version == null ? "default" : version.trim();
     }
 
     private void evictExpired() {
